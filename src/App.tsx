@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import ReactEChartsCore from "echarts-for-react/lib/core";
 import * as echarts from "echarts";
 import * as ecStat from "echarts-stat";
@@ -6,6 +6,7 @@ import type { ExternalDataTransform } from "@manufac/echarts-simple-transform";
 import { Button } from "./components/Button";
 import { Input } from "./components/input";
 import { Selector } from "./components/Selector";
+import { produce } from "immer";
 
 declare module "echarts-stat" {
   let transform: {
@@ -29,9 +30,7 @@ function App() {
     ],
   });
 
-  const [selectedVillage, setSelectedVillage] = useState(
-    chartData.categories[0].name,
-  );
+  const [selectedVillageIndex, setSelectedVillageIndex] = useState(0);
 
   const transformChartData = (): Array<Array<number>> => {
     const res = [];
@@ -46,56 +45,31 @@ function App() {
     }
 
     return res;
-  };
+  }; // move to util
 
   const transformedData = transformChartData();
-  const addVillage = () => {
-    const { categories } = chartData;
-
-    const newCategoryName = `Village ${categories.length + 1}`;
-
-    setChartData({
-      ...chartData,
-      categories: [...categories, { name: newCategoryName, data: [] }],
-    });
-    setSelectedVillage(newCategoryName);
-  };
-  const selectedCategory = chartData.categories.find(
-    (category) => category.name === selectedVillage,
-  );
-
-  useEffect(() => {
-    // fetch("http://localhost:3001/villages", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ name: "village 10", data: [10, 20, 30] }),
-    // })
-    //   .then((res) => res.text())
-    //   .then(console.log);
-  }, []);
 
   const handleSelectorChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedVillage(e.target.value);
+    setSelectedVillageIndex(e.target.selectedIndex);
   };
 
   const addInput = () => {
-    if (selectedCategory.data.length < 10) selectedCategory.data.push(0);
+    const selectedCategoryData = chartData.categories[selectedVillageIndex];
+    if (selectedCategoryData.data.length < 10)
+      selectedCategoryData.data.push(0);
 
     setChartData({
       ...chartData,
-      categories: [...chartData.categories, selectedCategory],
+      categories: [...chartData.categories, selectedCategoryData],
     });
   };
 
   const handleInput = (e: ChangeEvent<HTMLInputElement>, index: number) => {
-    if (selectedCategory.data.length < 10)
-      selectedCategory.data[index] = Number(e.target.value);
-
-    setChartData({
-      ...chartData,
-      categories: [...chartData.categories, selectedCategory],
+    setChartData((chartData) => {
+      return produce(chartData, (chartData) => {
+        chartData.categories[selectedVillageIndex].data[index] = e.target
+          .value as unknown as number;
+      });
     });
   };
 
@@ -168,21 +142,22 @@ function App() {
             <Selector
               title="Select a Village"
               options={chartData.categories.map(({ name }) => name)}
-              selected={selectedVillage}
+              selected={selectedVillageIndex}
               handleChange={(e) => handleSelectorChange(e)}
             />
             <div className="flex flex-wrap items-end">
-              {chartData.categories
-                .find((category) => category.name === selectedVillage)
-                .data.map((data, index) => (
+              {chartData.categories[selectedVillageIndex].data.map(
+                (data, index) => (
                   <Input
                     title={`${index * 10} - ${(index + 1) * 10}`}
                     value={data}
                     key={index}
+                    type="text"
                     onChange={(e) => handleInput(e, index)}
                   />
-                ))}
-              {selectedCategory.data.length < 10 && (
+                ),
+              )}
+              {chartData.categories[selectedVillageIndex].data.length < 10 && (
                 <Button className="my-2 mx-auto" onClick={addInput}>
                   Add Data
                 </Button>
@@ -191,9 +166,6 @@ function App() {
           </div>
         </div>
       </div>
-      <Button className="mt-8" onClick={addVillage}>
-        Add Village
-      </Button>
     </div>
   );
 }
