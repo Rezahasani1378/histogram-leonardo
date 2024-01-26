@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import ReactEChartsCore from "echarts-for-react/lib/core";
 import * as echarts from "echarts";
 import * as ecStat from "echarts-stat";
@@ -29,6 +29,10 @@ function App() {
     ],
   };
 
+  const [selectedVillage, setSelectedVillage] = useState(
+    chartData.categories[0].name,
+  );
+
   const transformChartData = () => {
     const chartNumbers = chartData.categories.map((category) => category.data);
     for (let i = 0; i < chartNumbers.length; i++) {
@@ -48,6 +52,10 @@ function App() {
     //   .then((res) => res.text())
     //   .then(console.log);
   }, []);
+
+  const handleSelectorChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedVillage(e.target.value);
+  };
 
   return (
     <div className="flex flex-col h-screen w-screen justify-start lg:justify-center items-center">
@@ -116,15 +124,21 @@ function App() {
         </div>
         <div className="w-full lg:w-[40%] lg:border-solid lg:border-2 lg:border-gray-50 p-5 lg:rounded-xl bg-white lg:shadow lg:ml-10">
           <div>
-            <Selector />
+            <Selector
+              title="Select a Village"
+              options={chartData.categories.map(({ name }) => name)}
+              handleChange={(e) => handleSelectorChange(e)}
+            />
             <div className="flex flex-wrap">
-              {chartData.categories.map((category, index) => (
-                <Input
-                  title={category.name}
-                  placeholder={category.name}
-                  key={index}
-                />
-              ))}
+              {chartData.categories
+                .find((category) => category.name === selectedVillage)
+                .data.map((data, index) => (
+                  <Input
+                    title={`${index * 10} - ${(index + 1) * 10}`}
+                    placeholder={String(data)}
+                    key={index}
+                  />
+                ))}
             </div>
           </div>
         </div>
