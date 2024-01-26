@@ -18,7 +18,7 @@ declare module "echarts-stat" {
 function App() {
   echarts.registerTransform(ecStat.transform.histogram);
 
-  const chartData = {
+  const [chartData, setChartData] = useState({
     title: "Village",
     categories: [
       { name: "Village 1", data: [43.3, 85.8, 93.7, 12, 34] },
@@ -27,19 +27,42 @@ function App() {
       { name: "Village 4", data: [72.4, 53.9, 39.1, 21, 43] },
       { name: "Village 5", data: [72.4, 53.9, 39.1, 21, 43] },
     ],
-  };
+  });
 
   const [selectedVillage, setSelectedVillage] = useState(
     chartData.categories[0].name,
   );
 
-  const transformChartData = () => {
-    const chartNumbers = chartData.categories.map((category) => category.data);
-    for (let i = 0; i < chartNumbers.length; i++) {
-      chartNumbers[i].unshift((i + 1) * 10);
+  const transformChartData = (): Array<Array<number>> => {
+    const res = [];
+
+    for (let i = 0; i < chartData.categories[0].data.length; i++) {
+      if (res[i] === undefined) {
+        res[i] = [(i + 1) * 10];
+      }
+      for (const category of chartData.categories) {
+        res[i].push(category.data[i]);
+      }
     }
-    return chartNumbers;
+
+    return res;
   };
+
+  const transformedData = transformChartData();
+  const addVillage = () => {
+    const { categories } = chartData;
+
+    const newCategoryName = `Village ${categories.length + 1}`;
+
+    setChartData({
+      ...chartData,
+      categories: [...categories, { name: newCategoryName, data: [] }],
+    });
+    setSelectedVillage(newCategoryName);
+  };
+  const selectedCategory = chartData.categories.find(
+    (category) => category.name === selectedVillage,
+  );
 
   useEffect(() => {
     // fetch("http://localhost:3001/villages", {
@@ -55,6 +78,25 @@ function App() {
 
   const handleSelectorChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectedVillage(e.target.value);
+  };
+
+  const addInput = () => {
+    if (selectedCategory.data.length < 10) selectedCategory.data.push(0);
+
+    setChartData({
+      ...chartData,
+      categories: [...chartData.categories, selectedCategory],
+    });
+  };
+
+  const handleInput = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    if (selectedCategory.data.length < 10)
+      selectedCategory.data[index] = Number(e.target.value);
+
+    setChartData({
+      ...chartData,
+      categories: [...chartData.categories, selectedCategory],
+    });
   };
 
   return (
@@ -89,8 +131,7 @@ function App() {
                     chartData.title,
                     ...chartData.categories.map((category) => category.name),
                   ],
-
-                  ...transformChartData(),
+                  ...transformedData,
                 ],
               },
               xAxis: {
@@ -127,23 +168,32 @@ function App() {
             <Selector
               title="Select a Village"
               options={chartData.categories.map(({ name }) => name)}
+              selected={selectedVillage}
               handleChange={(e) => handleSelectorChange(e)}
             />
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap items-end">
               {chartData.categories
                 .find((category) => category.name === selectedVillage)
                 .data.map((data, index) => (
                   <Input
                     title={`${index * 10} - ${(index + 1) * 10}`}
-                    placeholder={String(data)}
+                    value={data}
                     key={index}
+                    onChange={(e) => handleInput(e, index)}
                   />
                 ))}
+              {selectedCategory.data.length < 10 && (
+                <Button className="my-2 mx-auto" onClick={addInput}>
+                  Add Data
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <Button className="mt-8">Change Data</Button>
+      <Button className="mt-8" onClick={addVillage}>
+        Add Village
+      </Button>
     </div>
   );
 }
