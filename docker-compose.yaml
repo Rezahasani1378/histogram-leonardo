@@ -1,0 +1,9 @@
+version: "1"
+services:
+  web:
+    container_name: web
+    build: .
+    ports:
+      - 80:3001
+    volumes:
+      - ./db.json:/app/db.json
