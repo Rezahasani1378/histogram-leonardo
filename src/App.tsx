@@ -1,7 +1,17 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import ReactEChartsCore from "echarts-for-react/lib/core";
 import * as echarts from "echarts";
-import ecStat from "echarts-stat";
+import * as ecStat from "echarts-stat";
+import type { ExternalDataTransform } from "@manufac/echarts-simple-transform";
+
+declare module "echarts-stat" {
+  let transform: {
+    regression: ExternalDataTransform;
+    histogram: ExternalDataTransform;
+    clustering: ExternalDataTransform;
+  };
+}
+
 function App() {
   echarts.registerTransform(ecStat.transform.histogram);
 
