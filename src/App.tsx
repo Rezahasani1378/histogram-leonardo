@@ -33,13 +33,12 @@ function App() {
   };
 
   const addInput = () => {
-    const selectedCategoryData = chartData.categories[selectedVillageIndex];
-    if (selectedCategoryData.data.length < 10)
-      selectedCategoryData.data.push(0);
-
-    setChartData({
-      ...chartData,
-      categories: [...chartData.categories, selectedCategoryData],
+    setChartData((chartData) => {
+      return produce(chartData, (chartData) => {
+        const selectedCategoryData = chartData.categories[selectedVillageIndex];
+        if (selectedCategoryData.data.length < 10)
+          selectedCategoryData.data[selectedCategoryData.data.length] = 0;
+      });
     });
   };
 
@@ -75,10 +74,8 @@ function App() {
 
     return res;
   };
-  console.log(chartData);
 
   const averageData = calculateAverageData();
-  console.log(averageData);
 
   return (
     <div className="flex flex-col h-screen w-screen justify-start xl:justify-center items-center">
@@ -98,8 +95,12 @@ function App() {
               <span className="text-uppermostGray font-bold text-sm">Unit</span>
             </div>
             <div className="flex flex-row xl:flex-col justify-between xl:justify-normal w-full xl:w-auto cursor-default mr-2">
-              {calculateAverageData().map(({ color, value }) => (
-                <span className="text-xl mb-1.5 font-bold" style={{ color }}>
+              {averageData.map(({ color, value }) => (
+                <span
+                  className="text-xl mb-1.5 font-bold"
+                  style={{ color }}
+                  key={color}
+                >
                   {value}
                 </span>
               ))}
