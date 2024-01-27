@@ -46,9 +46,7 @@ function App() {
   const handleInput = (e: ChangeEvent<HTMLInputElement>, index: number) => {
     let prevVal = "";
 
-    if (e.target.checkValidity() || e.target.value === "") {
-      prevVal = e.target.value;
-    } else {
+    if (!(e.target.checkValidity() || e.target.value === "")) {
       e.target.value = prevVal;
     }
 
@@ -67,7 +65,8 @@ function App() {
     for (let i = 0; i < categories.length; i++) {
       const categoryData = categories[i].data;
       const average =
-        categoryData.reduce((a, b) => a + b) / categoryData.length;
+        categoryData.reduce((a, b) => Number(a) + Number(b)) /
+        categoryData.length;
       res.push({
         color: chartColors[i],
         value: average.toFixed(2),
@@ -76,8 +75,10 @@ function App() {
 
     return res;
   };
+  console.log(chartData);
 
   const averageData = calculateAverageData();
+  console.log(averageData);
 
   return (
     <div className="flex flex-col h-screen w-screen justify-start xl:justify-center items-center">
@@ -97,7 +98,7 @@ function App() {
               <span className="text-uppermostGray font-bold text-sm">Unit</span>
             </div>
             <div className="flex flex-row xl:flex-col justify-between xl:justify-normal w-full xl:w-auto cursor-default mr-2">
-              {averageData.map(({ color, value }) => (
+              {calculateAverageData().map(({ color, value }) => (
                 <span className="text-xl mb-1.5 font-bold" style={{ color }}>
                   {value}
                 </span>
