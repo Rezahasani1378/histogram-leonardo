@@ -94,7 +94,7 @@ function App() {
           <div className="flex flex-row xl:flex-col mt-12 ml-[-20px] items-center">
             <div className="flex flex-col mb-2 mx-2 xl:mx-0">
               <span className="font-bold text-sm">Avg.</span>
-              <span className="text-[#9f9f9f] font-bold text-sm">Unit</span>
+              <span className="text-uppermostGray font-bold text-sm">Unit</span>
             </div>
             <div className="flex flex-row xl:flex-col justify-between xl:justify-normal w-full xl:w-auto cursor-default mr-2">
               {averageData.map(({ color, value }) => (
