@@ -9,7 +9,7 @@ import { Selector } from "./components/Selector";
 import { produce } from "immer";
 import { transformData } from "./utils/transformers/chart/transformData";
 import { transformOptions } from "./utils/transformers/chart/transformOptions";
-import { initialChartData } from "./constants/initialChartData";
+import { chartColors, initialChartData } from "./constants/chart";
 
 declare module "echarts-stat" {
   let transform: {
@@ -60,18 +60,52 @@ function App() {
     });
   };
 
+  const calculateAverageData = () => {
+    let res = [];
+    const { categories } = chartData;
+
+    for (let i = 0; i < categories.length; i++) {
+      const categoryData = categories[i].data;
+      const average =
+        categoryData.reduce((a, b) => a + b) / categoryData.length;
+      res.push({
+        color: chartColors[i],
+        value: average.toFixed(2),
+      });
+    }
+
+    return res;
+  };
+
+  const averageData = calculateAverageData();
+
   return (
-    <div className="flex flex-col h-screen w-screen justify-start lg:justify-center items-center">
-      <div className="w-full flex lg:justify-center flex-col lg:flex-row">
-        <div className="w-full lg:w-[40%] lg:border-solid lg:border-2 lg:border-gray-50 p-5 lg:rounded-xl bg-white shadow">
-          <ReactEChartsCore
-            echarts={echarts}
-            option={transformOptions(transformedData, chartData)}
-            notMerge={true}
-            lazyUpdate={true}
-          />
+    <div className="flex flex-col h-screen w-screen justify-start xl:justify-center items-center">
+      <div className="w-full flex xl:justify-center flex-col xl:flex-row">
+        <div className="flex flex-col xl:flex-row w-full xl:w-[40%] xl:border-solid xl:border-2 xl:border-gray-50 p-5 xl:rounded-xl bg-white shadow">
+          <div className="w-full">
+            <ReactEChartsCore
+              echarts={echarts}
+              option={transformOptions(transformedData, chartData)}
+              notMerge={true}
+              lazyUpdate={true}
+            />
+          </div>
+          <div className="flex flex-row xl:flex-col mt-12 ml-[-20px] items-center">
+            <div className="flex flex-col mb-2 mx-2 xl:mx-0">
+              <span className="font-bold text-sm">Avg.</span>
+              <span className="text-[#9f9f9f] font-bold text-sm">Unit</span>
+            </div>
+            <div className="flex flex-row xl:flex-col justify-between xl:justify-normal w-full xl:w-auto cursor-default mr-2">
+              {averageData.map(({ color, value }) => (
+                <span className="text-xl mb-1.5 font-bold" style={{ color }}>
+                  {value}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-        <div className="w-full lg:w-[40%] lg:border-solid lg:border-2 lg:border-gray-50 p-5 lg:rounded-xl bg-white lg:shadow lg:ml-10">
+        <div className="w-full xl:w-[40%] xl:border-solid xl:border-2 xl:border-gray-50 p-5 xl:rounded-xl bg-white xl:shadow xl:ml-10">
           <div>
             <Selector
               title="Select a Village"

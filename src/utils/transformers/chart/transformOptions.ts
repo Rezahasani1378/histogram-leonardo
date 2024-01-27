@@ -1,4 +1,5 @@
 import type { ChartSource } from "../../../types/ChartSource";
+import { chartColors } from "../../../constants/chart";
 
 const transformOptions = (
   transformedData: ChartSource,
@@ -22,7 +23,7 @@ const transformOptions = (
     },
     padding: [8, 20],
   },
-  color: ["#6f9ca3", "#fec876", "#89B99B", "#7B72FF", "#4A7A81"],
+  color: chartColors,
   dataset: {
     source: [
       [

@@ -9,4 +9,6 @@ const initialChartData = {
   ],
 };
 
-export { initialChartData };
+const chartColors = ["#6f9ca3", "#fec876", "#89B99B", "#7B72FF", "#4A7A81"];
+
+export { initialChartData, chartColors };
